@@ -1,16 +1,11 @@
 package com.example.tpjoansmithleolemercier.task
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
-import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.tpjoansmithleolemercier.R
 import com.example.tpjoansmithleolemercier.tasklist.Task
-import com.example.tpjoansmithleolemercier.tasklist.TaskListAdapter
-import com.example.tpjoansmithleolemercier.tasklist.TaskListFragment
 import java.util.*
 
 class TaskActivity : AppCompatActivity() {
@@ -25,10 +20,13 @@ class TaskActivity : AppCompatActivity() {
         val buttonConfirm = findViewById<Button>(R.id.editConfirm)
         val editTitle = findViewById<EditText>(R.id.editTitle)
         val editDescription = findViewById<EditText>(R.id.editDescription)
+        val taskToModify = intent.getSerializableExtra(TASK_KEY) as? Task
+        editTitle.setText(taskToModify?.title)
+        editDescription.setText(taskToModify?.description)
 
         buttonConfirm.setOnClickListener{
-            val taskAdd = Task(id = UUID.randomUUID().toString(), title = editTitle.text.toString(), description = editDescription.text.toString())
-            intent.putExtra(TASK_KEY, taskAdd)
+            val task = Task(id = taskToModify?.id ?: UUID.randomUUID().toString(), title = editTitle.text.toString(), description = editDescription.text.toString())
+            intent.putExtra(TASK_KEY, task)
             setResult(RESULT_OK, intent)
             finish()
         }

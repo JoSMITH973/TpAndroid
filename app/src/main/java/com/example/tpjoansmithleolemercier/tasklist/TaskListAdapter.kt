@@ -3,12 +3,10 @@ package com.example.tpjoansmithleolemercier.tasklist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tpjoansmithleolemercier.R
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.util.*
 
 class TaskListAdapter(private val taskList: List<Task>) : RecyclerView.Adapter<TaskListAdapter.TaskViewHolder>() {
 
@@ -29,14 +27,20 @@ class TaskListAdapter(private val taskList: List<Task>) : RecyclerView.Adapter<T
     inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val textView = itemView.findViewById<TextView>(R.id.task_title)
         private val deleteButton = itemView.findViewById<ImageButton>(R.id.DeleteButton)
+        private val editButton = itemView.findViewById<ImageButton>(R.id.EditButton)
         fun bind(task: Task) {
                 textView.text = task.toString()
                 deleteButton.setOnClickListener{
                     onDeleteTask?.invoke(task)
                 }
+                editButton.setOnClickListener {
+                    onEditTask?.invoke(task)
+                }
         }
     }
 
     var onDeleteTask: ((Task) -> Unit)? = null
+
+    var onEditTask: ((Task) -> Unit)? = null
 
 }
