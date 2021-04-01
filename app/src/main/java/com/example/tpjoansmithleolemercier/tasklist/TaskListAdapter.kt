@@ -30,14 +30,14 @@ class TaskListAdapter(val taskList: List<Task>) : RecyclerView.Adapter<TaskListA
         private val deleteButton = itemView.findViewById<ImageButton>(R.id.DeleteButton)
         private val editButton = itemView.findViewById<ImageButton>(R.id.EditButton)
         fun bind(task: Task) {
-                titleView.text = task.title
-                descriptionView.text = task.description
-                deleteButton.setOnClickListener{
-                    onDeleteTask?.invoke(task)
-                }
-                editButton.setOnClickListener {
-                    onEditTask?.invoke(task)
-                }
+            titleView.text = task.title
+            descriptionView.text = task.description
+            deleteButton.setOnClickListener{
+                onDeleteTask?.invoke(task)
+            }
+            editButton.setOnClickListener {
+                onEditTask?.invoke(task)
+            }
         }
     }
 

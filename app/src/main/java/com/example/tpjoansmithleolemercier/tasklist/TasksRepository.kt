@@ -14,28 +14,9 @@ class TasksRepository {
     // On pourra seulement l'observer (s'y abonner) depuis d'autres classes
     public val taskList: LiveData<List<Task>> = _taskList
 
-    suspend fun createTask(task: Task) {
-        val createResponse = tasksWebService.createTask(task)
-        val createdTask = createResponse.body()!!
-        val editableList = _taskList.value.orEmpty().toMutableList()
-        editableList.add(createdTask)
-        _taskList.value = editableList
-    }
-
-    suspend fun updateTask(task: Task) {
-        val updateResponse = tasksWebService.updateTask(task)
-        val updatedTask = updateResponse.body()!!
-        val editableList = _taskList.value.orEmpty().toMutableList()
-        val position = editableList.indexOfFirst { updatedTask.id == it.id }
-        editableList[position] = updatedTask
-        _taskList.value = editableList
-    }
-
-    suspend fun deleteTask(task: Task) {
-       tasksWebService.deleteTask(task.id)
-        val editableList = _taskList.value.orEmpty().toMutableList()
-        editableList.remove(task)
-        _taskList.value = editableList
+    suspend fun loadTasks(): List<Task>? {
+        val response = tasksWebService.getTasks()
+        return if (response.isSuccessful) response.body() else null
     }
 
     suspend fun refresh() {
@@ -47,5 +28,33 @@ class TasksRepository {
             // on modifie la valeur encapsulée, ce qui va notifier ses Observers et donc déclencher leur callback
             _taskList.value = fetchedTasks!!
         }
+    }
+
+    suspend fun createTask(task: Task): Task? {
+        val createResponse = tasksWebService.createTask(task)
+//        val createdTask = createResponse.body()!!
+//        val editableList = _taskList.value.orEmpty().toMutableList()
+//        editableList.add(createdTask)
+//        _taskList.value = editableList
+        return if(createResponse.isSuccessful) createResponse.body() else null
+    }
+
+    suspend fun updateTask(task: Task): Task? {
+        val updateResponse = tasksWebService.updateTask(task)
+//        val updatedTask = updateResponse.body()!!
+//        val editableList = _taskList.value.orEmpty().toMutableList()
+//        val position = editableList.indexOfFirst { updatedTask.id == it.id }
+//        editableList[position] = updatedTask
+//        _taskList.value = editableList
+
+        return if(updateResponse.isSuccessful) updateResponse.body() else null
+    }
+
+    suspend fun removeTask(task: Task): Unit? {
+        val deleteResponse = tasksWebService.deleteTask(task.id)
+//        val editableList = _taskList.value.orEmpty().toMutableList()
+//        editableList.remove(task)
+//        _taskList.value = editableList
+        return if(deleteResponse.isSuccessful) deleteResponse.body() else null
     }
 }

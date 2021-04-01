@@ -6,19 +6,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.tpjoansmithleolemercier.R
 import com.example.tpjoansmithleolemercier.network.Api
 import com.example.tpjoansmithleolemercier.task.TaskActivity
+import com.example.tpjoansmithleolemercier.userinfo.UserInfoActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
 class TaskListFragment : Fragment() {
     private val tasksRepository = TasksRepository()
+    val viewModel: TaskListViewModel by viewModels()
     private val taskList = mutableListOf(
             Task(id = "id_1", title = "Task 1", description = "description 1"),
             Task(id = "id_2", title = "Task 2"),
@@ -27,7 +32,8 @@ class TaskListFragment : Fragment() {
     private val adapter: TaskListAdapter = TaskListAdapter(taskList)
 
     companion object {
-        const val ADD_TASK_REQUEST_CODE = 666
+        const val ADD_TASK_REQUEST_CODE = 123
+        const val AVATAR_TASK_REQUEST_CODE = 456
     }
 
     override fun onCreateView(
@@ -36,7 +42,6 @@ class TaskListFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_task_list, container, false)
-//        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,9 +55,15 @@ class TaskListFragment : Fragment() {
             startActivityForResult(intent, ADD_TASK_REQUEST_CODE)
         }
 
-        tasksRepository.taskList.observe(viewLifecycleOwner) { list ->
+        val imageView = view?.findViewById<ImageView>(R.id.AvatarId)
+        imageView.setOnClickListener {
+            val intent = Intent(activity, UserInfoActivity::class.java)
+            startActivityForResult(intent, AVATAR_TASK_REQUEST_CODE)
+        }
+
+        viewModel.taskList.observe(viewLifecycleOwner) { newList ->
             taskList.clear()
-            taskList.addAll(list)//modifier la liste et charger les nouvelles valeurs
+            taskList.addAll(newList)//modifier la liste et charger les nouvelles valeurs
             adapter.notifyDataSetChanged()
         }
 
@@ -67,7 +78,7 @@ class TaskListFragment : Fragment() {
         adapter.onDeleteTask = { task ->
 //            taskList.remove(task)
             lifecycleScope.launch {
-                tasksRepository.deleteTask(task)
+                viewModel.deleteTask(task)
             }
             adapter.notifyDataSetChanged()
         }
@@ -80,15 +91,20 @@ class TaskListFragment : Fragment() {
             val indexTask = taskList.indexOfFirst{it.id == task.id}
             if (indexTask < 0) {
                 lifecycleScope.launch {
-                    tasksRepository.createTask(task)
+                    viewModel.addTask(task)
                 }
-//                taskList.add(task)
             }
             else {
                 lifecycleScope.launch {
-                    tasksRepository.updateTask(task)
+                    viewModel.editTask(task)
                 }
-//                taskList[indexTask] = task
+            }
+        }
+        if (requestCode == AVATAR_TASK_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            lifecycleScope.launch {
+                val imageView = view?.findViewById<ImageView>(R.id.AvatarId)
+                val userInfo = Api.userService.getInfo().body()!!
+                imageView?.load(userInfo.avatar)
             }
         }
         adapter.notifyDataSetChanged()
@@ -97,10 +113,13 @@ class TaskListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         val textView = view?.findViewById<TextView>(R.id.userInfo)
+        val imageView = view?.findViewById<ImageView>(R.id.AvatarId)
         lifecycleScope.launch {
             val userInfo = Api.userService.getInfo().body()!!
             textView?.text = "${userInfo.firstName} ${userInfo.lastName}"
-            tasksRepository.refresh()
+//            imageView?.load("https://goo.gl/gEgYUd")
+            imageView?.load("${userInfo.avatar}")
+            viewModel.loadTasks()
         }
     }
 }
