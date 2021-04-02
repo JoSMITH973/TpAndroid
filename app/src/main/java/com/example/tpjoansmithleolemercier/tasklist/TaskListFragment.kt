@@ -55,10 +55,10 @@ class TaskListFragment : Fragment() {
             startActivityForResult(intent, ADD_TASK_REQUEST_CODE)
         }
 
-        val imageView = view?.findViewById<ImageView>(R.id.AvatarId)
+        val imageView = view?.findViewById<ImageView>(R.id.image_view)
         imageView.setOnClickListener {
             val intent = Intent(activity, UserInfoActivity::class.java)
-            startActivityForResult(intent, AVATAR_TASK_REQUEST_CODE)
+            startActivityForResult(intent, ADD_TASK_REQUEST_CODE)
         }
 
         viewModel.taskList.observe(viewLifecycleOwner) { newList ->
@@ -99,25 +99,30 @@ class TaskListFragment : Fragment() {
                     viewModel.editTask(task)
                 }
             }
+//            lifecycleScope.launch {
+//                val imageView = view?.findViewById<ImageView>(R.id.AvatarId)
+//                val userInfo = Api.userService.getInfo().body()!!
+//                imageView?.load("${userInfo.avatar}")
+//            }
         }
-        if (requestCode == AVATAR_TASK_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            lifecycleScope.launch {
-                val imageView = view?.findViewById<ImageView>(R.id.AvatarId)
-                val userInfo = Api.userService.getInfo().body()!!
-                imageView?.load(userInfo.avatar)
-            }
-        }
+//        if (requestCode == AVATAR_TASK_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+//            lifecycleScope.launch {
+//                val imageView = view?.findViewById<ImageView>(R.id.AvatarId)
+//                val userInfo = Api.userService.getInfo().body()!!
+//                imageView?.load("${userInfo.avatar}")
+//            }
+//        }
         adapter.notifyDataSetChanged()
     }
 
     override fun onResume() {
         super.onResume()
         val textView = view?.findViewById<TextView>(R.id.userInfo)
-        val imageView = view?.findViewById<ImageView>(R.id.AvatarId)
+        val imageView = view?.findViewById<ImageView>(R.id.image_view)
         lifecycleScope.launch {
             val userInfo = Api.userService.getInfo().body()!!
             textView?.text = "${userInfo.firstName} ${userInfo.lastName}"
-//            imageView?.load("https://goo.gl/gEgYUd")
+            imageView?.load("https://goo.gl/gEgYUd")
             imageView?.load("${userInfo.avatar}")
             viewModel.loadTasks()
         }

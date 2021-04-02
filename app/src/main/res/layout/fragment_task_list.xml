@@ -24,7 +24,7 @@
             android:text="userInfo" />
 
         <ImageView
-            android:id="@+id/AvatarId"
+            android:id="@+id/image_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginEnd="8dp"
