@@ -122,7 +122,7 @@ class TaskListFragment : Fragment() {
         lifecycleScope.launch {
             val userInfo = Api.userService.getInfo().body()!!
             textView?.text = "${userInfo.firstName} ${userInfo.lastName}"
-            imageView?.load("https://goo.gl/gEgYUd")
+//            imageView?.load("https://goo.gl/gEgYUd")
             imageView?.load("${userInfo.avatar}")
             viewModel.loadTasks()
         }
